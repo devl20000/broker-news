@@ -21,6 +21,19 @@ jobs:
 
       - name: Install dependencies
         run: pip install -r requirements.txt
+      - name: Check token format
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+        run: |
+          python - <<'PY'
+          import os
+          token = os.environ.get("BOT_TOKEN", "")
+          parts = token.split(":")
+          print("Длина токена:", len(token))
+          print("Количество двоеточий:", token.count(":"))
+          print("Первая часть состоит из цифр:", bool(parts) and parts[0].isdigit())
+          print("Пробелы по краям:", token != token.strip())
+          PY
 
       - name: Publish news
         env:
