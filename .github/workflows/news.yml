@@ -1,1 +1,35 @@
+name: Broker news
 
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/30 * * * *"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download project
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Publish news
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          CHANNEL_ID: "@upravaktiv"
+        run: python broker_once.py
+
+      - name: Save published-news database
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: Update published news database
+          file_pattern: published.sqlite3
